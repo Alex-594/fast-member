@@ -1,0 +1,76 @@
+#: import Window kivy.core.window.Window
+#: set gap 0.015 * Window.width
+<CAMIMenuBlock>:
+    canvas.before:
+        # Draw the image underneath the touch highlighting
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            source: self.source
+            size: self.size
+            pos: self.pos
+    canvas.after:
+        # Draw the touch highlighting
+        Color:
+            rgba: [0, 0, 0, 0] if not self.pressed else [0.5, 1, 1, 0.5]
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    size_hint_x: None
+    width: 0
+
+
+<CAMIMenuRow>
+    text: ''
+    callback: None
+    number: None
+    spacing: 5
+
+    CAMIMenuBlock:
+        # Houses the number image before the label
+        id: mb_number
+        text: str(root.number)
+        callback: root.callback
+        source: "graphics/menuicon{0}.png".format(root.number % 6) if root.number is not None else "graphics/blank.png"
+        width: self.height
+        visible: True
+
+    Widget:
+        canvas:
+            Color:
+                rgba: 0.5, 0.5, 1, 0.5
+            RoundedRectangle:
+                size: self.size
+                pos: self.pos
+        CAMIMenuBlock:
+            id: mb_text
+            callback: root.callback
+            text: root.text
+            text_size: self.size
+            halign: 'left'
+            valign: 'center'
+            pos: (self.parent.x + gap, self.parent.y)
+            size: (self.parent.width - gap, self.parent.height)
+            visible: True
+
+    CAMIMenuBlock:
+        id: mb_post0
+        width: self.height if self.visible else 0
+        source: root.post_icons[0]['source'] if self.visible else 'graphics/blank.py'
+    CAMIMenuBlock:
+        id: mb_post1
+        width: self.height if self.visible else 0
+        source: root.post_icons[1]['source'] if self.visible else 'graphics/blank.py'
+
+<CAMIMenu>
+    scroll_type: ['bars', 'content']
+    scroll_wheel_distance: 10 * gap
+    bar_width: gap
+    viewclass: 'CAMIMenuRow'
+    RecycleBoxLayout:
+        default_size: None, row_height
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        spacing: 0.5 * gap

@@ -25,13 +25,62 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev wget
 
-    - name: Install Buildozer
+    - name: Install Buildozer and Cython
       run: |
-        pip install buildozer
+        pip install buildozer cython
+
+    - name: Install Apache ANT manually
+      run: |
+        ANT_VERSION="1.10.12"
+        ANT_URL="https://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz"
+        ANT_DIR="$HOME/.buildozer/android/platform/apache-ant-${ANT_VERSION}"
+        if [ ! -d "$ANT_DIR" ]; then
+          echo "Downloading Apache ANT..."
+          wget -q ${ANT_URL} -O /tmp/apache-ant-${ANT_VERSION}-bin.tar.gz
+          mkdir -p "$HOME/.buildozer/android/platform"
+          tar -xzf /tmp/apache-ant-${ANT_VERSION}-bin.tar.gz -C "$HOME/.buildozer/android/platform"
+          echo "Apache ANT installed successfully"
+        else
+          echo "Apache ANT already installed."
+        fi
+        echo "ANT_HOME=$ANT_DIR" >> $GITHUB_ENV
+        echo "$ANT_DIR/bin" >> $GITHUB_PATH
+
+    - name: Install Android SDK manually and accept licenses
+      run: |
+        ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
+        mkdir -p "$ANDROID_SDK_ROOT"
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/commandlinetools.zip
+        unzip -q /tmp/commandlinetools.zip -d "$ANDROID_SDK_ROOT"
+        mv "$ANDROID_SDK_ROOT/cmdline-tools" "$ANDROID_SDK_ROOT/latest"
+        mkdir -p "$ANDROID_SDK_ROOT/tools"
+        ln -s "$ANDROID_SDK_ROOT/latest/bin" "$ANDROID_SDK_ROOT/tools/bin"
+
+        echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+        echo "$ANDROID_SDK_ROOT/latest/bin" >> $GITHUB_PATH
+        echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
+
+        yes | "$ANDROID_SDK_ROOT/latest/bin/sdkmanager" --licenses || true
+        "$ANDROID_SDK_ROOT/latest/bin/sdkmanager" "build-tools;34.0.0" "build-tools;36.1.0" "platforms;android-33" "platform-tools" || true
 
     - name: Build APK
       run: |
-        buildozer android debug
+        buildozer android debug 2>&1 | tee build.log
+      continue-on-error: true
+
+    - name: Show build log on error
+      if: failure()
+      run: |
+        echo "=== Build failed, showing last 100 lines of log ==="
+        tail -100 build.log || echo "No build.log found"
+        echo "=== Checking for errors ==="
+        grep -i error build.log || echo "No errors found in log"
+
+    - name: List build artifacts
+      if: always()
+      run: |
+        ls -la bin/ || echo "No bin directory found"
+        find . -name "*.apk" -type f || echo "No APK files found"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4

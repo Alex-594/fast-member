@@ -1,33 +1,51 @@
-language: python
-python:
-  - "3.10"
-
 os: linux
-dist: jammy
+dist: focal
+language: python
 
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev wget
+python:
+  - 3.8
 
 install:
-  - pip install buildozer cython
+  - sudo apt -y install python3-distutils
+  - sudo apt -y install python3-pip
+  - sudo apt install -y git
+  - git clone https://github.com/kivy/buildozer.git
+  - python3 -m site
+  - ls -l
+  - cd buildozer
+  - ls -l
+  - python3 setup.py install
+  - ls -l
+  - cd ..
+  - ls -l
 
-before_script:
-  - mkdir -p ~/.android/licenses
-  - echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.android/licenses/android-sdk-license
-  - echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.android/licenses/android-sdk-preview-license
-  - echo "d975f751698a77b662f1254ddbeed3901e976f5a" > ~/.android/licenses/android-sdk-license-5
-  - echo "601085b94cd77f0b54ff86406957099ebe79c4d6" > ~/.android/licenses/android-go-sdk-license
-  - echo "33b6a2b64607f11b759f320ef9dff34ae516ff70" > ~/.android/licenses/android-sdk-arm-dbt-license
-  - echo "8403addf88ab4874007e1c1e80a0025de11b4b89" > ~/.android/licenses/android-sdk-license-3
-  - echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/licenses/android-sdk-preview-license-2
-  - echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > ~/.android/licenses/android-sdk-license-2
-  - echo "79120722343a6a31496171f3e4a5b956fd7f3282" > ~/.android/licenses/android-sdk-license-4
-
-script:
-  - buildozer android debug
-
-after_success:
-  - ls -la bin/ || true
-  - find . -name "*.apk" -type f || true
+  - sudo apt update
+  - sudo apt install -y git zip unzip openjdk-8-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+  - pip3 install --upgrade Cython==0.29.19 virtualenv
+  - export PATH=$PATH:~/.local/bin/
+  - ls -l
+  - echo "TODO COMPILE 32bit"
+  - yes | buildozer android debug
+  - ls -la
+  - ls bin/ -l
+  - gem install dpl --pre
+  - dpl releases --token $fast  --file "bin/fastmember-1.0.0-armeabi-v7a-debug.apk" --tag_name "v1.0.0"
+  - echo "TODO COMPILE 64bit"
+  - ls -l /home/travis/
+  - ls -l /home/travis/build/Alex-594/fast-member/
+  - ls -la
+  - rm -r -f .buildozer
+  - ls -la
+  - rm -r -f /home/travis/build/Alex-594/fast-member/.buildozer
+  - ls -l /home/travis/
+  - ls -l /home/travis/build/Alex-594/fast-member/
+  - ls -l
+  - yes | cp -f buildozer-64bit.spec buildozer.spec
+  - yes | buildozer android debug
+  - ls -la
+  - ls bin/ -l
+  - echo "TODO"
+  - gem install dpl --pre
+  - dpl releases --token $fast --file "bin/fastmember-1.0.0-arm64-v8a-debug.apk" --tag_name "v1.0.0"
+  - echo "OK"
 

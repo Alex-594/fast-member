@@ -30,6 +30,34 @@ jobs:
       run: |
         pip install buildozer cython
 
+    - name: Setup Android SDK
+      run: |
+        mkdir -p ~/.buildozer/android/platform
+        export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
+        mkdir -p $ANDROID_HOME
+        
+        # Download and install command line tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d $ANDROID_HOME
+        mv $ANDROID_HOME/cmdline-tools $ANDROID_HOME/cmdline-tools-tmp
+        mkdir -p $ANDROID_HOME/cmdline-tools
+        mv $ANDROID_HOME/cmdline-tools-tmp $ANDROID_HOME/cmdline-tools/latest
+        
+        # Accept licenses
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        
+        # Install build-tools and platform
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0" "platforms;android-33" "platform-tools"
+        
+        # Create symlink for buildozer compatibility
+        mkdir -p $ANDROID_HOME/build-tools
+        ln -s $ANDROID_HOME/build-tools/34.0.0 $ANDROID_HOME/build-tools/34.0.0 || true
+        
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
+
     - name: Build APK
       run: |
         buildozer android debug

@@ -29,7 +29,7 @@ install:
   - ls -la
   - ls bin/ -l
   - gem install dpl --pre
-  - if [ -f "bin/fastmember-1.0.0-armeabi-v7a-debug.apk" ]; then dpl releases --token $GITHUB_TOKEN --file "bin/fastmember-1.0.0-armeabi-v7a-debug.apk" --tag_name "v1.0.0"; else echo "APK file not found, listing bin directory:"; ls -la bin/; fi
+  - dpl releases --token $GITHUB_TOKEN  --file "bin/fastmember-1.0.0-armeabi-v7a-debug.apk" --tag_name "v1.0.0"
   - echo "TODO COMPILE 64bit"
   - ls -l /home/travis/
   - ls -l /home/travis/build/Alex-594/fast-member/
@@ -46,6 +46,6 @@ install:
   - ls bin/ -l
   - echo "TODO"
   - gem install dpl --pre
-  - if [ -f "bin/fastmember-1.0.0-arm64-v8a-debug.apk" ]; then dpl releases --token $GITHUB_TOKEN --file "bin/fastmember-1.0.0-arm64-v8a-debug.apk" --tag_name "v1.0.0"; else echo "APK file not found, listing bin directory:"; ls -la bin/; fi
+  - dpl releases --token $GITHUB_TOKEN --file "bin/fastmember-1.0.0-arm64-v8a-debug.apk" --tag_name "v1.0.0"
   - echo "OK"
 

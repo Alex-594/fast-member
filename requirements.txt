@@ -1,0 +1,27 @@
+# Зависимости для мобильного приложения FAST_member
+
+# GUI Framework
+kivy>=2.1.0
+kivymd>=1.1.1
+
+# Работа с QR-кодами
+qrcode[pil]>=7.4.2
+pyzbar>=0.1.9
+opencv-python>=4.8.0
+
+# Криптография
+cryptography>=41.0.0
+
+# GPS и системные функции
+plyer>=2.1.0
+
+# Работа с данными
+json5>=0.9.14
+
+# База данных (если понадобится)
+# kivy.storage или sqlite3 (встроен в Python)
+
+# Для компиляции в Android APK
+# buildozer (устанавливается отдельно)
+
+

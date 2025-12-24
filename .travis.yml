@@ -3,7 +3,7 @@ python:
   - "3.10"
 
 os: linux
-dist: jammy  # Ubuntu 22.04
+dist: jammy
 
 before_install:
   - sudo apt-get update
@@ -13,7 +13,6 @@ install:
   - pip install buildozer cython
 
 before_script:
-  # Принимаем лицензии Android
   - mkdir -p ~/.android/licenses
   - echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.android/licenses/android-sdk-license
   - echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.android/licenses/android-sdk-preview-license
@@ -29,15 +28,6 @@ script:
   - buildozer android debug
 
 after_success:
-  - ls -la bin/
-  - find . -name "*.apk" -type f
-
-deploy:
-  provider: releases
-  api_key: $GITHUB_TOKEN
-  file_glob: true
-  file: "bin/*.apk"
-  skip_cleanup: true
-  on:
-    tags: true
+  - ls -la bin/ || true
+  - find . -name "*.apk" -type f || true
 
